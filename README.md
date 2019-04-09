@@ -74,3 +74,11 @@ def get_ip_address():
     return [l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0]
 
 ```
+
+I have prepared and tested locally the condor.py script. Launch the following commands on **3 different terminals**:
+
+    python condor.py 3 0 "debug" #this starts the parameter server
+    python condor.py 3 1 "debug" #this starts the first worker
+    python condor.py 3 2 "debug" #this starts the second worker
+
+This training does not start until all the workers are ready. I have to test in in the Condor cluster, to be able to do that I have to create a docker image.
