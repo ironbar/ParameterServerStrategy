@@ -36,3 +36,9 @@ It's possible to replicate the train from local.py launching the following comma
     python custom_conf.py tf_confs/localhost/ps.json #this starts the parameter server
     python custom_conf.py tf_confs/localhost/worker_0.json #this starts the first worker
     python custom_conf.py tf_confs/localhost/worker_1.json #this starts the second worker
+
+### Observations
+
+* If we define a parameter server without workers and start the workers pointing to that server it does not work
+* If we define the workers with incorrect ports on the parameter server it does not work
+* If each worker has only information about itself and the server only the first worker trains. However if the second worker adds information about a fake first worker then both workers train. So it seems that the index of the worker is needed.
