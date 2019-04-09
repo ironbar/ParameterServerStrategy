@@ -32,9 +32,10 @@ def main():
     write_machine_cluster_configuration(
         task, ip_address, port, args.worker_idx, args.comm_folder)
     tf_config = read_tf_config(args.n_workers, args.comm_folder)
+    tf_config = add_task_to_tf_config(tf_config, task, ip_address, port)
     print(tf_config)
-    #set_tf_config(args.n_workers, args.worker_idx)
-    # train()
+    set_tf_config(tf_config)
+    train()
 
 def _parse_args():
     parser = argparse.ArgumentParser(description='Train using ParameterServerStrategy on a single machine')
@@ -108,23 +109,13 @@ def _add_cluster_group(tf_config, group, confs):
         conf = group_confs[i]
         tf_config['cluster'][group].append('%s:%s' % (conf['ip_address'], conf['port']))
 
+def add_task_to_tf_config(tf_config, task, ip_address, port):
+    key = '%s:%s' % (ip_address, port)
+    tf_config['task'] = {'type': task, 'index': tf_config['cluster'][task].index(key)}
+    return tf_config
 
-def set_tf_config(n_workers, worker_idx):
-    IP_ADDRS = ['localhost']*n_workers
-    PORTS = np.arange(12345, 12345 + n_workers)
-
-    if worker_idx == 0:
-        task = {'type': 'ps', 'index': 0}
-    else:
-        task = {'type': 'worker', 'index': worker_idx-1}
-
-    os.environ['TF_CONFIG'] = json.dumps({
-        'cluster': {
-            'worker': ['%s:%d' % (IP_ADDRS[w], PORTS[w]) for w in range(1, n_workers)],
-            'ps': ['%s:%d' % (IP_ADDRS[w], PORTS[w]) for w in range(1)],
-        },
-        'task': task,
-    })
+def set_tf_config(tf_config):
+    os.environ['TF_CONFIG'] = json.dumps(tf_config)
 
 def train():
     strategy = tf.distribute.experimental.ParameterServerStrategy()
