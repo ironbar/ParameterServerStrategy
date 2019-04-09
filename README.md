@@ -82,3 +82,8 @@ I have prepared and tested locally the condor.py script. Launch the following co
     python condor.py 3 2 "debug" #this starts the second worker
 
 This training does not start until all the workers are ready. I have to test in in the Condor cluster, to be able to do that I have to create a docker image.
+
+When testing on docker we have found a problem with the ip address. We have to launch docker with the following command to use the machine ip, otherwise it uses docker ip and the different machines cannot communicate with each other.
+
+    docker run -ti -v /mnt/data:/mnt/data --network host tensorflow:2.0.0-alpha0
+
