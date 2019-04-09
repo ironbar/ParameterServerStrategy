@@ -5,9 +5,9 @@ from tensorflow.
 
 ## Useful links
 
-https://www.tensorflow.org/alpha/guide/distribute_strategy
-https://www.tensorflow.org/alpha/tutorials/distribute/keras
-https://www.tensorflow.org/alpha/tutorials/distribute/multi_worker
+https://www.tensorflow.org/alpha/guide/distribute_strategy  
+https://www.tensorflow.org/alpha/tutorials/distribute/keras  
+https://www.tensorflow.org/alpha/tutorials/distribute/multi_worker  
 
 ## Local.py
 
