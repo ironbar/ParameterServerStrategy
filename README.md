@@ -42,3 +42,23 @@ It's possible to replicate the train from local.py launching the following comma
 * If we define a parameter server without workers and start the workers pointing to that server it does not work
 * If we define the workers with incorrect ports on the parameter server it does not work
 * If each worker has only information about itself and the server only the first worker trains. However if the second worker adds information about a fake first worker then both workers train. So it seems that the index of the worker is needed.
+
+## Condor cluster
+
+The final step is to make this work in the condor cluster. There are two problems we have to face:
+
+1. The ip of the machines and ports is not known in advance. It's condor who does the machine assignation.
+2. The ports may be in use, so we need a method to choose the ports wisely. More than one work can land on the same machine so the method has to deal with this.
+
+The previous experiments have shown that the server needs to know the ips of the machines and the ports before starting. The workers can have fake information but it will be better and simpler to provide them the truth. One solution for this could be to wait until all the jobs have landed on their machines and have chosen their ports. Each job can write a file with its parameters so the other jobs can create the configuration.  
+The disadvantage of this method is that waiting for all the jobs could take a lot of time. In the other hand probably it's the best strategy for training.
+
+We need to find a python library for checking if a port is available. From [stackoverflow](https://stackoverflow.com/questions/2470971/fast-way-to-test-if-a-port-is-in-use-using-python) we get the following function that I have tested and works.
+
+```python
+import socket
+
+def is_port_in_use(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', port)) == 0
+```
