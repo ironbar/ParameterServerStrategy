@@ -59,6 +59,18 @@ We need to find a python library for checking if a port is available. From [stac
 import socket
 
 def is_port_in_use(port):
+    # https://stackoverflow.com/questions/2470971/fast-way-to-test-if-a-port-is-in-use-using-python
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('localhost', port)) == 0
+```
+
+We also need a method for getting the IP address of the machine
+
+```python
+import socket
+
+def get_ip_address():
+    # https://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
+    return [l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0]
+
 ```
