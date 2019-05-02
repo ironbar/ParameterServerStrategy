@@ -104,3 +104,5 @@ To run on the condor simply submit the condor.sub file to the cluster
 The tricks are to use the following environmental variable `DOCKER_NETWORK=host` and the number of workers is controlled by setting N_WORKERS to the desired number. One of the workers is the parameter server.
 
 It is recommended to create the folder where the jobs are going to communicate in advance to avoid having problems.
+
+There is one limitation, we have to manually kill the parameter server because it does not end. I think this will probably be fixed by tensorflow on the future.
