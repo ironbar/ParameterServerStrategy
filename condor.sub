@@ -1,0 +1,16 @@
+# Unix submit description file
+# example of using tensorflow parameter server strategy
+
+universe                = docker
+docker_image            = 192.168.4.250:5000/tensorflow:2.0.0-alpha0
+executable              = python
+arguments               = condor.py 4 $(Process) /mnt/scratch/users/gbarbadillo/htcondor_examples/parameter_server/comm
+environment             = DOCKER_NETWORK=host
+
+log                     = log_$(Cluster)_$(Process).txt
+output                  = output_$(Cluster)_$(Process).txt
+error                   = error_$(Cluster)_$(Process).txt
+
+should_transfer_files   = NO
+#when_to_transfer_output = ON_EXIT
+queue 4
