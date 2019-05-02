@@ -9,7 +9,9 @@ https://www.tensorflow.org/alpha/guide/distribute_strategy
 https://www.tensorflow.org/alpha/tutorials/distribute/keras  
 https://www.tensorflow.org/alpha/tutorials/distribute/multi_worker  
 
-## local.py
+## Scripts
+
+### local.py
 
 This script launches a parameter server training in the local machine. It allows to
 configure how many workers are we going to use and the index of the worker. Index 0 is for the parameter serving service.
@@ -20,14 +22,14 @@ For example if we want to use 3 workers we should launch the following commands 
     python local.py 3 1 #this starts the first worker
     python local.py 3 2 #this starts the second worker
 
-### Observations
+#### Observations
 
 * If the parameter server has not started the workers will be waiting until it starts
 * If the parameter server is ready and worker 2 is not ready worker 1 will start training without waiting for worker 2
 * The error at the end of the training when using 2 workers is smaller than when using 1 worker
 * Currently the server does not stop when the training end. Moreover the workers show an error message at the end of the training
 
-## custom_conf.py
+### custom_conf.py
 
 This script allows to give a json file with the tensorflow configuration as input. 
 
@@ -37,13 +39,13 @@ It's possible to replicate the train from local.py launching the following comma
     python custom_conf.py tf_confs/localhost/worker_0.json #this starts the first worker
     python custom_conf.py tf_confs/localhost/worker_1.json #this starts the second worker
 
-### Observations
+#### Observations
 
 * If we define a parameter server without workers and start the workers pointing to that server it does not work
 * If we define the workers with incorrect ports on the parameter server it does not work
 * If each worker has only information about itself and the server only the first worker trains. However if the second worker adds information about a fake first worker then both workers train. So it seems that the index of the worker is needed.
 
-## Condor cluster
+### Condor cluster
 
 The final step is to make this work in the condor cluster. There are two problems we have to face:
 
@@ -75,15 +77,30 @@ def get_ip_address():
 
 ```
 
+#### Local run
+
 I have prepared and tested locally the condor.py script. Launch the following commands on **3 different terminals**:
 
     python condor.py 3 0 "debug" #this starts the parameter server
     python condor.py 3 1 "debug" #this starts the first worker
     python condor.py 3 2 "debug" #this starts the second worker
 
-This training does not start until all the workers are ready. I have to test in in the Condor cluster, to be able to do that I have to create a docker image.
+This training does not start until all the workers are ready.
 
-When testing on docker we have found a problem with the ip address. We have to launch docker with the following command to use the machine ip, otherwise it uses docker ip and the different machines cannot communicate with each other.
+#### Local run with docker
+
+I have to test in in the Condor cluster, to be able to do that I have to create a docker image.
+
+When testing on docker we have found a problem with the ip address. We have to launch docker with the following command to use the machine ip, otherwise it uses docker ip and the different machines cannot communicate with each other. The key parameter is `--network host`.
 
     docker run -ti -v /mnt/data:/mnt/data --network host tensorflow:2.0.0-alpha0
 
+#### Run on condor cluster
+
+To run on the condor simply submit the condor.sub file to the cluster
+
+    condor_submit condor.sub
+
+The tricks are to use the following environmental variable `DOCKER_NETWORK=host` and the number of workers is controlled by setting N_WORKERS to the desired number. One of the workers is the parameter server.
+
+It is recommended to create the folder where the jobs are going to communicate in advance to avoid having problems.
